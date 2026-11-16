@@ -28,8 +28,9 @@ int? selectedCustomerId = null;   // vald kund, null = ingen vald än
 
 while (true)
 {
+    Console.WriteLine(($"{selectedCustomerId}"));
     Console.WriteLine();
-    Console.WriteLine("=== Holiday Maker ===");
+    Console.WriteLine("\n=== Holiday Maker ===");
     Console.WriteLine("1. Välj eller registrera kund");
     Console.WriteLine("2. Sök lediga rum");
     Console.WriteLine("3. Boka rum");
@@ -101,15 +102,28 @@ while (true)
             break;
 
         case 4:
-            if (selectedCustomerId is null) { Console.WriteLine("Välj en kund först (val 1)."); break; }
-            // GetBookingsByCustomerAsync(selectedCustomerId.Value) och skriv ut med PrintBooking
-            break;
+            {
+                if (selectedCustomerId is null) { Console.WriteLine("Välj en kund först (val 1)."); break; }
+                // Hämta alla bokningar på ett kund-id
+                List<BookingSummary> bookings = await bookingRepository.GetBookingsByCustomerAsync(selectedCustomerId.Value);
+                if (bookings.Count == 0)
+                {
+                    Console.WriteLine("Du har inga bokningar.");
+                    break;
+                }
+                Console.WriteLine("Dina bokningar:");
+                foreach (BookingSummary booking in bookings)
+                    {
+                        PrintBooking(booking);
+                    }
+                break;
+            }
 
         case 5:
+        {
             if (selectedCustomerId is null) { Console.WriteLine("Välj en kund först (val 1)."); break; }
             // visa kundens bokningar, ReadInt (bokningsnummer), CancelBookingAsync
-            break;
-
+        }
         case 0:
             return;
 
@@ -180,14 +194,6 @@ static async Task BookRoomAsync(RoomRepository roomRepository, BookingRepository
 
 //await BookRoomAsync(roomRepository, bookingRepository, 1, 20, 2,new DateOnly(2026, 12, 12), new DateOnly(2026, 12, 15));
 
-// Hämta alla bokningar på ett kund-id
-List<BookingSummary> bookings = await bookingRepository.GetBookingsByCustomerAsync(5);
-Console.WriteLine("Dina bokningar:");
-foreach (BookingSummary booking in bookings)
-{
-    PrintBooking(booking);
-}
-
 // radera en bokning
 int bookingId = 33;
 int rowsDeleted = await bookingRepository.CancelBookingAsync(bookingId, 8);
@@ -221,7 +227,7 @@ static DateOnly ReadDate(string prompt)
 
         if (!DateOnly.TryParseExact(Console.ReadLine(), "yyyy-MM-dd", out DateOnly date))
         {
-            Console.WriteLine("Ogiltig inmatning. Skriv datum i formatet yyyy-mm-dd.");
+            Console.WriteLine("Ogiltig inmatning. Skriv datum i formatet yyyy-MM-dd.");
         }
         else
         {
