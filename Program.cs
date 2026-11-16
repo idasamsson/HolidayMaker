@@ -91,18 +91,21 @@ while (true)
             break;
 
         case 3:
-            if (selectedCustomerId is null)
-            {
-                Console.WriteLine("Välj en kund först (val 1).");
-                break;
-            }
+        {
+            if (selectedCustomerId is null) {Console.WriteLine("Välj en kund först (val 1)."); break;}
             // ReadInt (rum-id), ReadInt (gäster), ReadDate (in och ut)
+            int roomId = ReadInt("Rums-id: ");
+            int guestCount = ReadInt("Antal gäster: ");
+            DateOnly checkIn = ReadDate("Incheckning: ");
+            DateOnly checkOut = ReadDate("Utcheckning: ");
             // await BookRoomAsync(..., selectedCustomerId.Value, ...)
+            await BookRoomAsync(roomRepository, bookingRepository, selectedCustomerId.Value, roomId, guestCount, checkIn, checkOut);
             break;
+        }
 
         case 4:
             {
-                if (selectedCustomerId is null) { Console.WriteLine("Välj en kund först (val 1)."); break; }
+                if (selectedCustomerId is null) {Console.WriteLine("Välj en kund först (val 1)."); break;}
                 // Hämta alla bokningar på ett kund-id
                 List<BookingSummary> bookings = await bookingRepository.GetBookingsByCustomerAsync(selectedCustomerId.Value);
                 if (bookings.Count == 0)
@@ -220,7 +223,7 @@ static async Task BookRoomAsync(RoomRepository roomRepository, BookingRepository
     Console.WriteLine($"Ditt bokningsnummer är: {bookingId}. Din bokning gäller för {nights} nätter och priset blir totalt {nights*price.Value}kr.");
 }
 
-//await BookRoomAsync(roomRepository, bookingRepository, 1, 20, 2,new DateOnly(2026, 12, 12), new DateOnly(2026, 12, 15));
+
 
 
 // hjälpmetod som kontrollerar inmatning av nummer
