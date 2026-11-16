@@ -53,10 +53,10 @@ while (true)
 
             switch (customerChoice)
             {
+                // hämta en befintlig kund
                 case 1:
                 {
                     int id = ReadInt("Kund-id: ");
-                    // READ: hämta en kund som ett enstaka objekt.
                     Customer? foundCustomer = await customerRepository.GetCustomerByIdAsync(id);
                     if (foundCustomer is null)
                         {
@@ -70,10 +70,9 @@ while (true)
                     break;
                 }
 
-
+                // lägg till en ny kund
                 case 2:
                 {
-                        // ADD: lägg till en ny kund och ta emot databasens nya id.
                     string firstName = ReadText("Förnamn: ");
                     string lastName = ReadText("Efternamn: ");
                     string email = ReadText("Epostadress: ");
@@ -91,7 +90,6 @@ while (true)
 
         // sök efter lediga rum
         case 2:
-            // ReadText (ort), ReadDate (in och ut), ReadInt (antal personer)
         {
             string city = ReadText("Ort(Malaga, Palma, Split): ");
             int guests = ReadInt("Antal gäster: ");
@@ -104,8 +102,16 @@ while (true)
                 Console.WriteLine("Utcheckning måste ligga efter incheckning.");
                 break;
             }
+
+             bool pool = ReadBool("Pool (ja/nej): ");
+            bool restaurant = ReadBool("Restaurang (ja/nej): ");
+            int? distanceCityCenter = ReadOptionalInt("Max avstånd till centrum i meter (Enter för inget): ");
+            int? distanceBeach = ReadOptionalInt("Max avstånd till strand i meter (Enter för inget): ");
+            int sortChoice = ReadInt("Sortera (1 = pris/natt, 2 = betyg): ");
+            SortOrder sort = sortChoice == 2 ? SortOrder.Rating : SortOrder.Price;
+            
             // GetAvailableRoomsAsync och skriv ut resultatet
-            List<AvailableRoom> rooms = await roomRepository.GetAvailableRoomsAsync(city, guests, checkIn, checkOut);
+            List<AvailableRoom> rooms = await roomRepository.GetAvailableRoomsAsync(city, guests, checkIn, checkOut, pool, restaurant, maxCityCenter: distanceCityCenter, maxBeach: distanceBeach, sort: sort);
 
             if (rooms.Count == 0)
             {
@@ -236,15 +242,7 @@ while (true)
             break;
     }
 }
-
-// 1. READ: hämta alla tillgängliga rum som en lista.
-List<AvailableRoom> availableRooms = await roomRepository.GetAvailableRoomsAsync("Palma", 2, new DateOnly(2026, 12, 12) , new DateOnly (2026, 12, 15));
-Console.WriteLine("Alla lediga rum:");
-foreach (AvailableRoom availableRoom in availableRooms)
-{
-    Console.WriteLine($"{availableRoom.AccommodationName} i {availableRoom.City}, rum {availableRoom.RoomNumber}: tillgängligt för {availableRoom.Capacity} gäster. Pris/natt: {availableRoom.PricePerNight}kr");
-}
-
+/*
 // 2. READ: hämta alla kunder som en lista.
 List<Customer> customers = await customerRepository.GetCustomersAsync();
 Console.WriteLine("Alla kunder:");
@@ -252,10 +250,7 @@ foreach (Customer customer in customers)
 {
     Console.WriteLine($"{customer.CustomerId}: {customer.FirstName} {customer.LastName} - {customer.Email}, {customer.Phone}");
 }
-
-
-//Console.WriteLine(await bookingRepository.IsRoomAvailableAsync(1, "2026-12-12", "2026-12-15")); // False
-//Console.WriteLine(await bookingRepository.IsRoomAvailableAsync(1, "2026-12-09", "2026-12-12")); // True
+*/
 
 // Skapa en bokning
 static async Task BookRoomAsync(RoomRepository roomRepository, BookingRepository bookingRepository, int customerId, int roomId, int guests, DateOnly checkIn, DateOnly checkOut)
@@ -295,9 +290,6 @@ static async Task BookRoomAsync(RoomRepository roomRepository, BookingRepository
     int bookingId = await bookingRepository.CreateBookingAsync(customerId, roomId, guests, checkIn, checkOut);
     Console.WriteLine($"Ditt bokningsnummer är: {bookingId}. Din bokning gäller för {nights} nätter och priset blir totalt {nights*price.Value}kr.");
 }
-
-
-
 
 // hjälpmetod som kontrollerar inmatning av nummer
 static int ReadInt(string prompt)
@@ -359,4 +351,50 @@ static void PrintBooking(BookingSummary booking)
    Console.Write($"\nBokningsnummer {booking.BookingId}. {booking.AccommodationName} rumsnummer {booking.RoomNumber}: ");
    Console.Write($"{booking.CheckIn} - {booking.CheckOut}, ");
    Console.Write($"antal gäster {booking.GuestCount}, totalt pris: {booking.TotalPrice}kr.\n");
+}
+
+//hjälpmetod för ja/nej
+static bool ReadBool(string prompt)
+{
+    while (true)
+    {
+        Console.Write(prompt);
+        string? input = Console.ReadLine()?.Trim().ToLower();
+
+        if (input == "ja")
+        {
+            return true;
+        }
+        else if (input == "nej")
+        {
+            return false;
+        }
+        else
+        {
+            Console.WriteLine("Svara ja eller nej");
+        }
+    }
+}
+
+// hjälpmetod för möjlighet till null
+static int? ReadOptionalInt(string prompt)
+{
+    while (true)
+    {
+        Console.Write(prompt);
+        string? input = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return null;
+        }
+        else if (int.TryParse(input, out int number))
+        {
+            return number;
+        }
+        else
+        {
+            Console.WriteLine("Skriv ett heltal eller tryck enter för inget");
+        }
+    }
 }

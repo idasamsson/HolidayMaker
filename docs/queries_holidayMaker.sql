@@ -49,13 +49,31 @@ WHERE room_id = 1 AND check_out > '2026-12-09' AND check_in < '2026-12-12';
 -- leta fram en kund utifrån id
 SELECT id, first_name, last_name, email, phone FROM customers WHERE id = 1;
 
+-- leta upp pris/natt för ett specifikt rum
 SELECT price_per_night
 FROM rooms
 WHERE id = 1;
 
+-- Leta fram bokningar på ett kund-id
 SELECT b.id, a.name, r.room_number, b.check_in, b.check_out, DATEDIFF(b.check_out, b.check_in) AS antal_nätter, b.guest_count, DATEDIFF(b.check_out, b.check_in)*r.price_per_night AS totalpris
 FROM bookings b 
 JOIN rooms r ON r.id = b.room_id 
 JOIN accommodation a  ON a.id = r.accommodation_id 
 WHERE b.customer_id = 5
 ORDER BY b.check_in;
+
+-- uppdatera en boknings gästantal
+UPDATE bookings b
+SET guest_count = 2
+WHERE b.id = 10 
+	AND b.customer_id = 5
+	AND 2 <= (SELECT capacity FROM rooms WHERE id = b.room_id);
+
+
+
+
+
+
+
+
+

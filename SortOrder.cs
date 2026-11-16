@@ -1,0 +1,1 @@
+public enum SortOrder { Price, Rating}
