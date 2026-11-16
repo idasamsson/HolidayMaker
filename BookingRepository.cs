@@ -20,7 +20,7 @@ public class BookingRepository(MySqlConnection connection)
     }
 
 // Skapa en bokning
-    public async Task<int> CreateBookingAsync(int customerId, int roomId, int guests, string checkIn, string checkOut)
+    public async Task<int> CreateBookingAsync(int customerId, int roomId, int guests, DateOnly? checkIn, DateOnly? checkOut)
     {
         await using var command = new MySqlCommand(
             "INSERT INTO bookings (customer_id, room_id, guest_count, check_in, check_out) VALUES (@customer_id, @room_id, @guest_count, @check_in, @check_out)", 
