@@ -25,20 +25,29 @@ var customerRepository = new CustomerRepository(connection);
 var bookingRepository = new BookingRepository(connection);
 
 int? selectedCustomerId = null;   // vald kund, null = ingen vald än
+string? selectedCustomerName = null;
 
 while (true)
 {
     Console.WriteLine();
-    Console.WriteLine("\n=== Holiday Maker ===");
-    Console.WriteLine("1. Välj eller registrera kund");
-    Console.WriteLine("2. Sök lediga rum");
-    Console.WriteLine("3. Boka rum");
-    Console.WriteLine("4. Visa kundens bokningar");
-    Console.WriteLine("5. Avboka");
-    Console.WriteLine("6. Uppdatera bokning");
-    Console.WriteLine("0. Avsluta");
-
+    if (selectedCustomerId == null)
+    {
+        
+        Console.WriteLine("\n=== Holiday Maker ===  Ingen kund vald  ===");
+    }
+    else
+    {
+        Console.WriteLine($"\n=== Holiday Maker ===  Vald kund: {selectedCustomerId}. {selectedCustomerName}  === ");
+    }
+        Console.WriteLine("1. Välj eller registrera kund");
+        Console.WriteLine("2. Sök lediga rum");
+        Console.WriteLine("3. Boka rum");
+        Console.WriteLine("4. Visa kundens bokningar");
+        Console.WriteLine("5. Uppdatera bokning");
+        Console.WriteLine("6. Avboka");
+        Console.WriteLine("0. Avsluta");
     int choice = ReadInt("Val: ");
+
 
     switch (choice)
     {
@@ -65,6 +74,7 @@ while (true)
                     else
                         {
                             selectedCustomerId = id;
+                            selectedCustomerName = $"{foundCustomer.FirstName} {foundCustomer.LastName}";
                             Console.WriteLine($"Vald kund: {foundCustomer.FirstName} {foundCustomer.LastName}");
                         }
                     break;
@@ -78,6 +88,7 @@ while (true)
                     string email = ReadText("Epostadress: ");
                     string phoneNumber = ReadText("Telefonnummer: ");
                     selectedCustomerId = await customerRepository.AddCustomerAsync(firstName, lastName, email, phoneNumber);
+                    selectedCustomerName = $"{firstName} {lastName}";
                     Console.WriteLine($"Skapad kund med id: {selectedCustomerId}");
                     break;
                 }
@@ -123,6 +134,7 @@ while (true)
             {
                 Console.WriteLine($"Rumsid: {room.RoomId}. {room.AccommodationName}, {room.City}, rum {room.RoomNumber}. Antal gäster: {guests}/{room.Capacity} Antal nätter: {nights} Totalpris: {nights*room.PricePerNight}");
             }
+            
             break;
         }
 
