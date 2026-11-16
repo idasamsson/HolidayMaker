@@ -69,10 +69,35 @@ WHERE b.id = 10
 	AND b.customer_id = 5
 	AND 2 <= (SELECT capacity FROM rooms WHERE id = b.room_id);
 
+DESCRIBE accommodation;
+
+-- sök lediga rum med filter
+SELECT a.name AS hotell, r.room_number AS rumsnummer, r.price_per_night AS pris_per_natt, a.rating AS betyg, a.pool AS pool, a.restaurant AS restaurang, a.city_center_distance AS avstand_till_centrum, a.beach_distance AS avstand_till_strand
+FROM rooms r 
+JOIN accommodation a ON a.id = r.accommodation_id 
+JOIN cities c ON c.id = a.city_id
+WHERE r.id NOT IN (
+	SELECT room_id
+	FROM bookings
+	WHERE check_out > '2026-12-27'
+  		AND check_in < '2026-12-31')
+ 		AND c.name = 'Malaga' AND r.capacity >= 2
+		AND (1 = 0 OR a.pool = 1)
+		AND (1 = 0 OR a.restaurant = 1)
+		AND (2500 IS NULL OR a.city_center_distance <= 2500)
+		AND (500 IS NULL OR a.beach_distance <= 500)
+ORDER BY r.price_per_night;
+
+SELECT b.room_id, b.check_in, b.check_out 
+FROM bookings b 
+JOIN rooms r ON r.id = b.room_id 
+JOIN accommodation a ON a.id = r.accommodation_id 
+WHERE a.city_id = 1
+ORDER BY b.check_in;
 
 
-
-
+-- sök och boka i samma menyval (enter för att avbryta
+-- snyggare meny med till exempel streck mellan kolumnenerna)
 
 
 
