@@ -1,4 +1,3 @@
-using System.Data;
 using MySqlConnector;
 
 public class CustomerRepository(MySqlConnection connection)

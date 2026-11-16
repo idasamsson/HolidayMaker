@@ -1,4 +1,3 @@
-
 public static class Helpers
 {
     // hjälpmetod som kontrollerar inmatning av nummer

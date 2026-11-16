@@ -1,5 +1,3 @@
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.CompilerServices;
 using MySqlConnector;
 
 public class BookingRepository(MySqlConnection connection)

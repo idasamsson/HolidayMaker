@@ -1,7 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.Design;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using MySqlConnector;
 
 public class RoomRepository(MySqlConnection connection)

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Metadata;
-using MySqlConnector;
+﻿using MySqlConnector;
 using static Helpers;
 
 // ANSLUTNING TILL DATABASEN
