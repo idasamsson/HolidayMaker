@@ -5,7 +5,7 @@ using MySqlConnector;
 public class BookingRepository(MySqlConnection connection)
 {
 // Kollar om ett rum är ledigt
-    public async Task<bool> IsRoomAvailableAsync(int roomId, string checkIn, string checkOut)
+    public async Task<bool> IsRoomAvailableAsync(int roomId, DateOnly checkIn, DateOnly checkOut)
     {
         await using var command = new MySqlCommand(
             "SELECT COUNT(*) FROM bookings WHERE room_id = @roomId AND check_out > @checkIn AND check_in < @checkOut", connection);

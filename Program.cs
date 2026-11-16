@@ -87,8 +87,33 @@ while (true)
         }
         case 2:
             // ReadText (ort), ReadDate (in och ut), ReadInt (antal personer)
+        {
+            string city = ReadText("Ort(Malaga, Palma, Split): ");
+            int guests = ReadInt("Antal gäster: ");
+            DateOnly checkIn = ReadDate("Incheckningsdatum: ");
+            DateOnly checkOut = ReadDate("Utcheckningsdatum: ");
+
+            // Samma kontroll som i BookRoomAsync: utcheckning måste ligga efter incheckning
+            if (checkOut <= checkIn)
+            {
+                Console.WriteLine("Utcheckning måste ligga efter incheckning.");
+                break;
+            }
             // GetAvailableRoomsAsync och skriv ut resultatet
+            List<AvailableRoom> rooms = await roomRepository.GetAvailableRoomsAsync(city, guests, checkIn, checkOut);
+
+            if (rooms.Count == 0)
+            {
+                Console.WriteLine("Inga lediga rum hittades.");
+                break;
+            }
+            int nights = checkOut.DayNumber - checkIn.DayNumber;
+            foreach (AvailableRoom room in rooms)
+            {
+                Console.WriteLine($"Rumsid: {room.RoomId}. {room.AccommodationName}, {room.City}, rum {room.RoomNumber}. Antal gäster: {guests}/{room.Capacity} Antal nätter: {nights} Totalpris: {nights*room.PricePerNight}");
+            }
             break;
+        }
 
         case 3:
         {
@@ -165,7 +190,7 @@ while (true)
 }
 
 // 1. READ: hämta alla tillgängliga rum som en lista.
-List<AvailableRoom> availableRooms = await roomRepository.GetAvailableRoomsAsync("Palma", "2026-12-12", "2026-12-15", 2);
+List<AvailableRoom> availableRooms = await roomRepository.GetAvailableRoomsAsync("Palma", 2, new DateOnly(2026, 12, 12) , new DateOnly (2026, 12, 15));
 Console.WriteLine("Alla lediga rum:");
 foreach (AvailableRoom availableRoom in availableRooms)
 {
@@ -181,8 +206,8 @@ foreach (Customer customer in customers)
 }
 
 
-Console.WriteLine(await bookingRepository.IsRoomAvailableAsync(1, "2026-12-12", "2026-12-15")); // False
-Console.WriteLine(await bookingRepository.IsRoomAvailableAsync(1, "2026-12-09", "2026-12-12")); // True
+//Console.WriteLine(await bookingRepository.IsRoomAvailableAsync(1, "2026-12-12", "2026-12-15")); // False
+//Console.WriteLine(await bookingRepository.IsRoomAvailableAsync(1, "2026-12-09", "2026-12-12")); // True
 
 // Skapa en bokning
 static async Task BookRoomAsync(RoomRepository roomRepository, BookingRepository bookingRepository, int customerId, int roomId, int guests, DateOnly checkIn, DateOnly checkOut)
@@ -206,7 +231,7 @@ static async Task BookRoomAsync(RoomRepository roomRepository, BookingRepository
             Console.WriteLine("Gästantalet överstiger rummets kapacitet");
             return;
         }
-     if (!await bookingRepository.IsRoomAvailableAsync(roomId, checkIn.ToString("yyyy-MM-dd"), checkOut.ToString("yyyy-MM-dd")))
+     if (!await bookingRepository.IsRoomAvailableAsync(roomId, checkIn, checkOut))
     {
         Console.WriteLine("Rummet är upptaget under perioden.");
         return;

@@ -5,7 +5,7 @@ using MySqlConnector;
 
 public class RoomRepository(MySqlConnection connection)
 {
-     public async Task<List<AvailableRoom>> GetAvailableRoomsAsync(string city, string checkIn, string checkOut, int guests)
+     public async Task<List<AvailableRoom>> GetAvailableRoomsAsync(string city, int guests, DateOnly checkIn, DateOnly checkOut)
     {
         await using var command = new MySqlCommand(
             """
