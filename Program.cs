@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Metadata;
 using MySqlConnector;
+using static Helpers;
 
 // ANSLUTNING TILL DATABASEN
 var password = Environment.GetEnvironmentVariable("HOLIDAY_DB_PASSWORD")
@@ -134,7 +135,7 @@ while (true)
             {
                 Console.WriteLine($"Rumsid: {room.RoomId}. {room.AccommodationName}, {room.City}, rum {room.RoomNumber}. Antal gäster: {guests}/{room.Capacity} Antal nätter: {nights} Totalpris: {nights*room.PricePerNight}");
             }
-            
+
             break;
         }
 
@@ -301,112 +302,4 @@ static async Task BookRoomAsync(RoomRepository roomRepository, BookingRepository
         }
     int bookingId = await bookingRepository.CreateBookingAsync(customerId, roomId, guests, checkIn, checkOut);
     Console.WriteLine($"Ditt bokningsnummer är: {bookingId}. Din bokning gäller för {nights} nätter och priset blir totalt {nights*price.Value}kr.");
-}
-
-// hjälpmetod som kontrollerar inmatning av nummer
-static int ReadInt(string prompt)
-{
-    while (true)
-    {
-        Console.Write(prompt);
-
-        if (!int.TryParse(Console.ReadLine(), out int number))
-        {
-            Console.WriteLine("Ogiltig inmatning. Skriv ett heltal.");
-        }
-        else
-        {
-            return number;   
-        }
-    }
-}
-
-// hjälpmetod som kontrollerar inmatning av datum
-static DateOnly ReadDate(string prompt)
-{
-    while (true)
-    {
-        Console.Write(prompt);
-
-        if (!DateOnly.TryParseExact(Console.ReadLine(), "yyyy-MM-dd", out DateOnly date))
-        {
-            Console.WriteLine("Ogiltig inmatning. Skriv datum i formatet yyyy-MM-dd.");
-        }
-        else
-        {
-            return date;
-        }
-    }
-}
-
-// hjälpmetod som kontrollerar inmatning av text
-static string ReadText(string prompt)
-{
-    while (true)
-    {
-        Console.Write(prompt);
-        string? input = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            Console.WriteLine("Fältet får inte vara tomt.");
-        }
-        else
-        {
-            return input.Trim();
-        }
-    }
-}
-
-//hjälpmetod  utskrift i konsol
-static void PrintBooking(BookingSummary booking)
-{
-   Console.Write($"\nBokningsnummer {booking.BookingId}. {booking.AccommodationName} rumsnummer {booking.RoomNumber}: ");
-   Console.Write($"{booking.CheckIn} - {booking.CheckOut}, ");
-   Console.Write($"antal gäster {booking.GuestCount}, totalt pris: {booking.TotalPrice}kr.\n");
-}
-
-//hjälpmetod för ja/nej
-static bool ReadBool(string prompt)
-{
-    while (true)
-    {
-        Console.Write(prompt);
-        string? input = Console.ReadLine()?.Trim().ToLower();
-
-        if (input == "ja")
-        {
-            return true;
-        }
-        else if (input == "nej")
-        {
-            return false;
-        }
-        else
-        {
-            Console.WriteLine("Svara ja eller nej");
-        }
-    }
-}
-
-// hjälpmetod för möjlighet till null
-static int? ReadOptionalInt(string prompt)
-{
-    while (true)
-    {
-        Console.Write(prompt);
-        string? input = Console.ReadLine();
-
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            return null;
-        }
-        else if (int.TryParse(input, out int number))
-        {
-            return number;
-        }
-        else
-        {
-            Console.WriteLine("Skriv ett heltal eller tryck enter för inget");
-        }
-    }
 }
