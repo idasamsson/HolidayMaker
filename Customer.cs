@@ -1,0 +1,1 @@
+public sealed record Customer (int CustomerId, string FirstName, string LastName, string Email, string Phone);
