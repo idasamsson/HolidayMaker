@@ -54,6 +54,7 @@ Console.WriteLine(customer is null ? "Hittar ingen kund med det id:t" : customer
 Console.WriteLine(await bookingRepository.IsRoomAvailableAsync(1, "2026-12-12", "2026-12-15")); // False
 Console.WriteLine(await bookingRepository.IsRoomAvailableAsync(1, "2026-12-09", "2026-12-12")); // True
 
+// Skapa en bokning
 static async Task BookRoomAsync(RoomRepository roomRepository, BookingRepository bookingRepository, int customerId, int roomId, int guests, string checkInText, string checkOutText)
 {
     // ogiltigt datum
@@ -100,12 +101,31 @@ static async Task BookRoomAsync(RoomRepository roomRepository, BookingRepository
 }
 
 await BookRoomAsync(roomRepository, bookingRepository, 1, 20, 2, "2026-12-12", "2026-12-15");
-*/
 
+/*
 // Hämta alla bokningar på ett kund-id
 List<BookingSummary> bookings = await bookingRepository.GetBookingsByCustomerAsync(5);
 Console.WriteLine("Dina bokningar:");
 foreach (BookingSummary booking in bookings)
 {
-    Console.WriteLine($"Bokningsnummer {booking.BookingId}. {booking.AccommodationName} rumsnummer {booking.RoomNumber}: {booking.CheckIn} - {booking.CheckOut}, antal gäster {booking.GuestCount}, totalt pris: {booking.TotalPrice}kr.");
+    PrintBooking(booking);
 }
+
+static void PrintBooking(BookingSummary booking)
+{
+   Console.Write($"\nBokningsnummer {booking.BookingId}. {booking.AccommodationName} rumsnummer {booking.RoomNumber}: ");
+   Console.Write($"{booking.CheckIn} - {booking.CheckOut}, ");
+   Console.Write($"antal gäster {booking.GuestCount}, totalt pris: {booking.TotalPrice}kr.");
+}
+*/
+
+// radera en bokning
+int bookingId = 33;
+int rowsDeleted = await bookingRepository.CancelBookingAsync(bookingId, 8);
+if (rowsDeleted == 1) {Console.WriteLine($"Bokning {bookingId} är avbokad.");}
+else {Console.WriteLine($"Hittar ingen bokning {bookingId} för den kunden.");}
+
+
+
+
+    

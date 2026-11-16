@@ -1,3 +1,5 @@
+using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
 using MySqlConnector;
 
 public class BookingRepository(MySqlConnection connection)
@@ -68,5 +70,17 @@ public async Task<List<BookingSummary>> GetBookingsByCustomerAsync(int customerI
                         reader.GetInt32("total_price")));
                 }
             return bookings;
+    }
+
+    public async Task<int>CancelBookingAsync(int bookingId, int customerId)
+    {
+        await using var command = new MySqlCommand (
+        "DELETE FROM bookings WHERE id = @id AND customer_id = @customerId", connection
+        );
+        command.Parameters.AddWithValue("@id", bookingId);
+        command.Parameters.AddWithValue("@customerId", customerId);
+        await command.PrepareAsync();
+        int rowsDeleted = await command.ExecuteNonQueryAsync();
+         return rowsDeleted;
     }
 }
