@@ -24,6 +24,58 @@ var roomRepository = new RoomRepository(connection);
 var customerRepository = new CustomerRepository(connection);
 var bookingRepository = new BookingRepository(connection);
 
+static int ReadInt(string prompt)
+{
+    while (true)
+    {
+        Console.Write(prompt);
+
+        if (!int.TryParse(Console.ReadLine(), out int number))
+        {
+            Console.WriteLine("Ogiltig inmatning. Skriv ett heltal.");
+        }
+        else
+        {
+            return number;   
+        }
+    }
+}
+
+static DateOnly ReadDate(string prompt)
+{
+    while (true)
+    {
+        Console.Write(prompt);
+
+        if (!DateOnly.TryParseExact(Console.ReadLine(), "yyyy-MM-dd", out DateOnly date))
+        {
+            Console.WriteLine("Ogiltig inmatning. Skriv datum i formatet yyyy-mm-dd.");
+        }
+        else
+        {
+            return date;
+        }
+    }
+}
+
+static string ReadText(string prompt)
+{
+    while (true)
+    {
+        Console.Write(prompt);
+        string? input = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            Console.WriteLine("Fältet får inte vara tomt.");
+        }
+        else
+        {
+            return input.Trim();
+        }
+    }
+}
+
+
 /*
 // 1. READ: hämta alla tillgängliga rum som en lista.
 List<AvailableRoom> availableRooms = await roomRepository.GetAvailableRoomsAsync("Palma", "2026-12-12", "2026-12-15", 2);
@@ -124,8 +176,3 @@ int bookingId = 33;
 int rowsDeleted = await bookingRepository.CancelBookingAsync(bookingId, 8);
 if (rowsDeleted == 1) {Console.WriteLine($"Bokning {bookingId} är avbokad.");}
 else {Console.WriteLine($"Hittar ingen bokning {bookingId} för den kunden.");}
-
-
-
-
-    
