@@ -83,4 +83,25 @@ public async Task<List<BookingSummary>> GetBookingsByCustomerAsync(int customerI
         int rowsDeleted = await command.ExecuteNonQueryAsync();
          return rowsDeleted;
     }
+
+     public async Task<int>UpdateBookingAsync(int bookingId, int guestCount, int customerId)
+    {
+        await using var command = new MySqlCommand (
+            """
+            UPDATE bookings 
+            SET guest_count = @guestCount 
+            WHERE bookings.id = @bookingId 
+                AND customer_id = @customerId 
+                AND @guestCount <= (SELECT capacity FROM rooms WHERE rooms.id = bookings.room_id)
+            """
+            ,connection);
+        command.Parameters.AddWithValue("@bookingId", bookingId);
+        command.Parameters.AddWithValue("@guestCount", guestCount);
+        command.Parameters.AddWithValue("@customerId", customerId);
+        await command.PrepareAsync();
+        int rowsUpdated = await command.ExecuteNonQueryAsync();
+         return rowsUpdated;
+    }
+
+
 }

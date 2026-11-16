@@ -35,12 +35,15 @@ while (true)
     Console.WriteLine("3. Boka rum");
     Console.WriteLine("4. Visa kundens bokningar");
     Console.WriteLine("5. Avboka");
+    Console.WriteLine("6. Uppdatera bokning");
     Console.WriteLine("0. Avsluta");
 
     int choice = ReadInt("Val: ");
 
     switch (choice)
     {
+
+        // Välj befintlig kund eller registrera en ny
         case 1:
         {
             // välj befintlig kund (ReadInt + GetCustomerByIdAsync) eller registrera ny (ReadText)
@@ -85,6 +88,8 @@ while (true)
             }         
             break;
         }
+
+        // sök efter lediga rum
         case 2:
             // ReadText (ort), ReadDate (in och ut), ReadInt (antal personer)
         {
@@ -115,6 +120,7 @@ while (true)
             break;
         }
 
+        // Boka ett rum
         case 3:
         {
             if (selectedCustomerId is null) {Console.WriteLine("Välj en kund först (val 1)."); break;}
@@ -128,6 +134,7 @@ while (true)
             break;
         }
 
+        // visa bokningar på kund-id.
         case 4:
             {
                 if (selectedCustomerId is null) {Console.WriteLine("Välj en kund först (val 1)."); break;}
@@ -146,6 +153,7 @@ while (true)
                 break;
             }
 
+        // avboka
         case 5:
         {
             if (selectedCustomerId is null) { Console.WriteLine("Välj en kund först (val 1)."); break; }
@@ -177,6 +185,46 @@ while (true)
                 Console.WriteLine($"Hittar ingen bokning {bookingId} för den kunden.");
             }
 
+            break;
+        }
+        // uppdatera bokning
+        case 6:
+        {
+            if (selectedCustomerId is null) { Console.WriteLine("Välj en kund först (val 1)."); break; }
+
+             // visa kundens bokningar
+                List<BookingSummary> bookings = await bookingRepository.GetBookingsByCustomerAsync(selectedCustomerId.Value);
+                if (bookings.Count == 0)
+                {
+                    Console.WriteLine("Du har inga bokningar.");
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Dina bokningar:");
+                foreach (BookingSummary booking in bookings)
+                    {
+                        PrintBooking(booking);
+                    }
+                }
+                
+            // uppdatera en bokning
+            int bookingId = ReadInt("Bokningsnummer: ");
+            int guestCount = ReadInt("Uppdatera antal gäster: ");
+            if (guestCount <= 0)
+                {
+                    Console.WriteLine("Gästantalet måste vara större än noll.");
+                    break;
+                }
+            int rowsUpdated = await bookingRepository.UpdateBookingAsync(bookingId, guestCount, selectedCustomerId.Value);
+            if (rowsUpdated == 1) 
+                {
+                    Console.WriteLine($"Bokning {bookingId} är uppdaterad till {guestCount} gäst/gäster.");
+                }
+            else 
+            {
+                Console.WriteLine($"Hittar ingen bokning {bookingId} för den kunden eller så är rymmer inte rummet {guestCount} gäster.");
+            }
             break;
         }
 
