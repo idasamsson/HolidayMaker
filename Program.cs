@@ -28,7 +28,6 @@ int? selectedCustomerId = null;   // vald kund, null = ingen vald än
 
 while (true)
 {
-    Console.WriteLine(($"{selectedCustomerId}"));
     Console.WriteLine();
     Console.WriteLine("\n=== Holiday Maker ===");
     Console.WriteLine("1. Välj eller registrera kund");
@@ -123,7 +122,36 @@ while (true)
         {
             if (selectedCustomerId is null) { Console.WriteLine("Välj en kund först (val 1)."); break; }
             // visa kundens bokningar, ReadInt (bokningsnummer), CancelBookingAsync
+                List<BookingSummary> bookings = await bookingRepository.GetBookingsByCustomerAsync(selectedCustomerId.Value);
+                if (bookings.Count == 0)
+                {
+                    Console.WriteLine("Du har inga bokningar.");
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Dina bokningar:");
+                foreach (BookingSummary booking in bookings)
+                    {
+                        PrintBooking(booking);
+                    }
+                }
+                
+            // radera en bokning
+            int bookingId = ReadInt("Bokningsnummer: ");
+            int rowsDeleted = await bookingRepository.CancelBookingAsync(bookingId, selectedCustomerId.Value);
+            if (rowsDeleted == 1) 
+                {
+                    Console.WriteLine($"Bokning {bookingId} är avbokad.");
+                }
+            else 
+            {
+                Console.WriteLine($"Hittar ingen bokning {bookingId} för den kunden.");
+            }
+
+            break;
         }
+
         case 0:
             return;
 
@@ -194,11 +222,6 @@ static async Task BookRoomAsync(RoomRepository roomRepository, BookingRepository
 
 //await BookRoomAsync(roomRepository, bookingRepository, 1, 20, 2,new DateOnly(2026, 12, 12), new DateOnly(2026, 12, 15));
 
-// radera en bokning
-int bookingId = 33;
-int rowsDeleted = await bookingRepository.CancelBookingAsync(bookingId, 8);
-if (rowsDeleted == 1) {Console.WriteLine($"Bokning {bookingId} är avbokad.");}
-else {Console.WriteLine($"Hittar ingen bokning {bookingId} för den kunden.");}
 
 // hjälpmetod som kontrollerar inmatning av nummer
 static int ReadInt(string prompt)
@@ -259,5 +282,5 @@ static void PrintBooking(BookingSummary booking)
 {
    Console.Write($"\nBokningsnummer {booking.BookingId}. {booking.AccommodationName} rumsnummer {booking.RoomNumber}: ");
    Console.Write($"{booking.CheckIn} - {booking.CheckOut}, ");
-   Console.Write($"antal gäster {booking.GuestCount}, totalt pris: {booking.TotalPrice}kr.");
+   Console.Write($"antal gäster {booking.GuestCount}, totalt pris: {booking.TotalPrice}kr.\n");
 }
