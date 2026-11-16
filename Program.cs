@@ -39,11 +39,10 @@ while (true)
         Console.WriteLine($"\n=== Holiday Maker ===  Vald kund: {selectedCustomerId}. {selectedCustomerName}  === ");
     }
         Console.WriteLine("1. Välj eller registrera kund");
-        Console.WriteLine("2. Sök lediga rum");
-        Console.WriteLine("3. Boka rum");
-        Console.WriteLine("4. Visa kundens bokningar");
-        Console.WriteLine("5. Uppdatera bokning");
-        Console.WriteLine("6. Avboka");
+        Console.WriteLine("2. Sök och boka rum");
+        Console.WriteLine("3. Visa kundens bokningar");
+        Console.WriteLine("4. Uppdatera bokning");
+        Console.WriteLine("5. Avboka");
         Console.WriteLine("0. Avsluta");
     int choice = ReadInt("Val: ");
 
@@ -113,7 +112,7 @@ while (true)
                 break;
             }
 
-             bool pool = ReadBool("Pool (ja/nej): ");
+            bool pool = ReadBool("Pool (ja/nej): ");
             bool restaurant = ReadBool("Restaurang (ja/nej): ");
             int? distanceCityCenter = ReadOptionalInt("Max avstånd till centrum i meter (Enter för inget): ");
             int? distanceBeach = ReadOptionalInt("Max avstånd till strand i meter (Enter för inget): ");
@@ -131,28 +130,31 @@ while (true)
             int nights = checkOut.DayNumber - checkIn.DayNumber;
             foreach (AvailableRoom room in rooms)
             {
-                Console.WriteLine($"Rumsid: {room.RoomId}. {room.AccommodationName}, {room.City}, rum {room.RoomNumber}. Antal gäster: {guests}/{room.Capacity} Antal nätter: {nights} Totalpris: {nights*room.PricePerNight}");
+                Console.WriteLine($"Rumsid: {room.RoomId}. {room.AccommodationName}, {room.City}, rum {room.RoomNumber}. Antal gäster: {guests} Antal nätter: {nights} Totalpris: {nights*room.PricePerNight}");
             }
-
-            break;
-        }
-
-        // Boka ett rum
-        case 3:
-        {
-            if (selectedCustomerId is null) {Console.WriteLine("Välj en kund först (val 1)."); break;}
+            if (selectedCustomerId is null) 
+            {   
+                Console.WriteLine("Välj en kund (val 1) om du vill boka något av rummen."); 
+                break;
+            }
             // ReadInt (rum-id), ReadInt (gäster), ReadDate (in och ut)
-            int roomId = ReadInt("Rums-id: ");
-            int guestCount = ReadInt("Antal gäster: ");
-            DateOnly checkIn = ReadDate("Incheckning: ");
-            DateOnly checkOut = ReadDate("Utcheckning: ");
-            // await BookRoomAsync(..., selectedCustomerId.Value, ...)
-            await BookRoomAsync(roomRepository, bookingRepository, selectedCustomerId.Value, roomId, guestCount, checkIn, checkOut);
+            if(ReadOptionalInt("Ange rums-id för att boka (Enter för att avbryta): ") is not int roomId)
+                {
+                    Console.WriteLine("Sökningen avbröts.");
+                    break;
+                }
+            if (!rooms.Exists(r => r.RoomId == roomId))
+                {
+                    Console.WriteLine("Rummet fanns ej i sökresultatet");
+                    break;
+                }
+            // Boka rum
+            await BookRoomAsync(roomRepository, bookingRepository, selectedCustomerId.Value, roomId, guests, checkIn, checkOut);
             break;
         }
 
         // visa bokningar på kund-id.
-        case 4:
+        case 3:
             {
                 if (selectedCustomerId is null) {Console.WriteLine("Välj en kund först (val 1)."); break;}
                 // Hämta alla bokningar på ett kund-id
@@ -170,42 +172,8 @@ while (true)
                 break;
             }
 
-        // avboka
-        case 5:
-        {
-            if (selectedCustomerId is null) { Console.WriteLine("Välj en kund först (val 1)."); break; }
-            // visa kundens bokningar, ReadInt (bokningsnummer), CancelBookingAsync
-                List<BookingSummary> bookings = await bookingRepository.GetBookingsByCustomerAsync(selectedCustomerId.Value);
-                if (bookings.Count == 0)
-                {
-                    Console.WriteLine("Du har inga bokningar.");
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Dina bokningar:");
-                foreach (BookingSummary booking in bookings)
-                    {
-                        PrintBooking(booking);
-                    }
-                }
-                
-            // radera en bokning
-            int bookingId = ReadInt("Bokningsnummer: ");
-            int rowsDeleted = await bookingRepository.CancelBookingAsync(bookingId, selectedCustomerId.Value);
-            if (rowsDeleted == 1) 
-                {
-                    Console.WriteLine($"Bokning {bookingId} är avbokad.");
-                }
-            else 
-            {
-                Console.WriteLine($"Hittar ingen bokning {bookingId} för den kunden.");
-            }
-
-            break;
-        }
         // uppdatera bokning
-        case 6:
+        case 4:
         {
             if (selectedCustomerId is null) { Console.WriteLine("Välj en kund först (val 1)."); break; }
 
@@ -242,6 +210,41 @@ while (true)
             {
                 Console.WriteLine($"Hittar ingen bokning {bookingId} för den kunden eller så är rymmer inte rummet {guestCount} gäster.");
             }
+            break;
+        }
+        
+        // avboka
+        case 5:
+        {
+            if (selectedCustomerId is null) { Console.WriteLine("Välj en kund först (val 1)."); break; }
+            // visa kundens bokningar, ReadInt (bokningsnummer), CancelBookingAsync
+                List<BookingSummary> bookings = await bookingRepository.GetBookingsByCustomerAsync(selectedCustomerId.Value);
+                if (bookings.Count == 0)
+                {
+                    Console.WriteLine("Du har inga bokningar.");
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Dina bokningar:");
+                foreach (BookingSummary booking in bookings)
+                    {
+                        PrintBooking(booking);
+                    }
+                }
+                
+            // radera en bokning
+            int bookingId = ReadInt("Bokningsnummer: ");
+            int rowsDeleted = await bookingRepository.CancelBookingAsync(bookingId, selectedCustomerId.Value);
+            if (rowsDeleted == 1) 
+                {
+                    Console.WriteLine($"Bokning {bookingId} är avbokad.");
+                }
+            else 
+            {
+                Console.WriteLine($"Hittar ingen bokning {bookingId} för den kunden.");
+            }
+
             break;
         }
 
