@@ -42,3 +42,14 @@ ALTER TABLE
     `bookings` ADD CONSTRAINT `bookings_customer_id_foreign` FOREIGN KEY(`customer_id`) REFERENCES `customers`(`id`);
 ALTER TABLE
     `bookings` ADD CONSTRAINT `bookings_room_id_foreign` FOREIGN KEY(`room_id`) REFERENCES `rooms`(`id`);
+ALTER TABLE rooms  
+ADD CONSTRAINT uq_room_per_accommodation UNIQUE (accommodation_id, room_number);
+
+ALTER TABLE rooms 
+ADD CONSTRAINT chk_capacity CHECK (capacity > 0);
+
+ALTER TABLE rooms 
+ADD CONSTRAINT chk_price_per_night CHECK (price_per_night > 0);
+
+ALTER TABLE bookings 
+ADD CONSTRAINT chk_guest_count CHECK (guest_count > 0);

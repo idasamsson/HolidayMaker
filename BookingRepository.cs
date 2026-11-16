@@ -35,5 +35,38 @@ public class BookingRepository(MySqlConnection connection)
     }
 
 // visa en kunds bokningar
-public async Task<List<booking
+public async Task<List<BookingSummary>> GetBookingsByCustomerAsync(int customerId)
+    {
+        await using var command = new MySqlCommand(
+            """
+            SELECT b.id AS booking_id, a.name AS accommodation_name, r.room_number, b.check_in, b.check_out, b.guest_count, DATEDIFF(b.check_out, b.check_in)*r.price_per_night AS total_price
+            FROM bookings b 
+            JOIN rooms r ON r.id = b.room_id 
+            JOIN accommodation a  ON a.id = r.accommodation_id 
+            WHERE b.customer_id = @customer_id
+            ORDER BY b.check_in;
+            """
+            ,connection);
+            command.Parameters.AddWithValue("customer_id", customerId);
+
+            await command.PrepareAsync();
+            await using var reader = await command.ExecuteReaderAsync();
+            
+            var bookings = new List<BookingSummary>();
+            while (await reader.ReadAsync())
+                {
+                    DateOnly checkIn = DateOnly.FromDateTime(reader.GetDateTime("check_in"));
+                    DateOnly checkOut = DateOnly.FromDateTime(reader.GetDateTime("check_out"));
+
+                    bookings.Add(new BookingSummary(
+                        reader.GetInt32("booking_id"),
+                        reader.GetString("accommodation_name"),
+                        reader.GetInt32("room_number"),
+                        checkIn,
+                        checkOut,
+                        reader.GetInt32("guest_count"),
+                        reader.GetInt32("total_price")));
+                }
+            return bookings;
+    }
 }
