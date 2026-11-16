@@ -1,7 +1,5 @@
-ALTER TABLE bookings 
-ADD CONSTRAINT chk_check_out_check_in CHECK (check_out > check_in);
-
-UPDATE bookings b 
+-- test: chk_check_out_check_in (finns i holiday_maker_er.sql) ska neka utcheckning före incheckning
+UPDATE bookings b
 SET check_in = '2026-12-08', check_out = '2026-12-06' 
 WHERE id = 1;
 
@@ -44,7 +42,7 @@ WHERE room_id = 1 AND check_out > '2026-12-09' AND check_in < '2026-12-12';
  SELECT id, first_name, last_name, email, phone FROM customers;
 
 -- lägg till en ny kund
- INSERT INTO customers (first_name, last_name, email, phone);
+ INSERT INTO customers (first_name, last_name, email, phone) VALUES ('Test', 'Testsson', 'test.testsson@example.com', '070-555 01 11');
 
 -- leta fram en kund utifrån id
 SELECT id, first_name, last_name, email, phone FROM customers WHERE id = 1;
