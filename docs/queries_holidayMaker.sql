@@ -96,9 +96,6 @@ WHERE a.city_id = 1
 ORDER BY b.check_in;
 
 
--- sök och boka i samma menyval (enter för att avbryta
--- snyggare meny med till exempel streck mellan kolumnenerna)
-
 
 
 
